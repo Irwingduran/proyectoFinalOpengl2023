@@ -8,7 +8,7 @@
 
 char texto[30];
 GLfloat win, r, g, b;
-Glint view_w, view_h, primitiva
+GLint view_w, view_h, primitiva;
 	
 void DesenhaQuadrado(void)
 {
@@ -46,7 +46,7 @@ void DesenhaTexto(char *string)
 		glRasterPos2f(-win,win-(win*0.08));
 		
 		while(*string)
-			gluBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_10,*string++);
+			glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_10, *string++);
 	glPopMatrix();
 }
 
@@ -73,7 +73,7 @@ void Desenha(void)
 
 void Inicializa (void)
 {
-	glClearColor(0.0f,0.0f, 0.0f, 1.0f)0;
+	glClearColor(0.0f,0.0f, 0.0f, 1.0f);
 	win=150.0f;
 	primitiva = QUADRADO;
 	r = 0.0f;
@@ -82,7 +82,7 @@ void Inicializa (void)
 	strcpy(texto, "(0,0)");
 }
 
-void AlteraTemanhoJanela(GLsizei w, GLsizei h)
+void AlteraTamanhoJanela(GLsizei w, GLsizei h)
 {
 	glViewport(0, 0, w, h);
 	view_w = w;
@@ -112,19 +112,95 @@ void TeclasEspeciais(int key, int x, int y)
 		win += 10;
 		if (win > 500) win = 500;
 		glMatrixMode(GL_PROJECTION);
-		G	}
+		glLoadIdentity();
+		gluOrtho2D (-win, win, -win, win);
+	}
+	glutPostRedisplay();
 }
 
+void MenuCor (int op) 
+{
+	switch(op) {
+	case 0: 
+		r = 1.0f;
+		g = 0.0f;
+		b = 0.0f;
+		break;
+	case 1: 
+		r = 0.0f;
+		g = 1.0f;
+		b = 0.0f;
+		break;
+	case 2: 
+		r = 0.0f;
+		g = 0.0f;
+		b = 1.0f;
+		break;
+	}
+	glutPostRedisplay();
+}
 
+void MenuPrimitiva(int op)
+{
+	switch(op) {
+	case 0:
+		primitiva = QUADRADO;
+			break;
+	case 1:
+		primitiva = TRIANGULO;
+			break;
+	case 2:
+		primitiva = LOSANGO;
+			break;
+	}
+	glutPostRedisplay();
+}
 
+void MenuPrincipal(int op) 
+{
+}
 
+void CriaMenu()
+{
+	int menu,submenu1,submenu2;
+	
+	submenu1 = glutCreateMenu(MenuCor);
+	glutAddMenuEntry("Vermelho",0);
+	glutAddMenuEntry("Verde",1);
+	glutAddMenuEntry("Azul",2);
+	
+	submenu2 = glutCreateMenu(MenuPrimitiva);
+	glutAddMenuEntry("Quadrado",0);
+	glutAddMenuEntry("Triangulo",1);
+	glutAddMenuEntry("Losango",2);
+	
+	menu = glutCreateMenu(MenuPrincipal);
+	glutAddSubMenu("Cor",submenu1);
+	glutAddSubMenu("Primitivas",submenu2);
+	
+	glutAttachMenu(GLUT_RIGHT_BUTTON);
+}
 
+void GerenciaMouse(int button, int state, int x, int y)
+{
+	if(button == GLUT_RIGHT_BUTTON)
+		if (state == GLUT_DOWN)
+			CriaMenu();
+	glutPostRedisplay();
+}
 
-
-
-
-
-
-
-
-
+int main(void) 
+{
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	glutInitWindowSize(350,300);
+	glutInitWindowPosition(10,10);
+	glutCreateWindow("Ejemplo Menu");
+	glutDisplayFunc(Desenha);
+	glutReshapeFunc(AlteraTamanhoJanela);
+	glutMotionFunc(MoveMouseBotaoPressionado);
+	glutPassiveMotionFunc(MoveMouseBotaoPressionado);
+	glutMouseFunc(GerenciaMouse);
+	glutSpecialFunc(TeclasEspeciais);
+	Inicializa();
+	glutMainLoop();
+}
